@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>บันทึกคนยืมเงิน</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    input, textarea { width: 100%; padding: 10px; margin: 5px 0; }
+    button { padding: 10px 15px; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+    th { background: #f0f0f0; }
+    .delete-btn { color: red; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>บันทึกคนยืมเงิน</h1>
+
+  <label>ชื่อเพื่อน:</label>
+  <input type="text" id="nameInput" placeholder="...">
+
+  <label>จำนวนเงิน (บาท):</label>
+  <input type="number" id="amountInput" placeholder="...">
+
+  <label>รายละเอียด:</label>
+  <textarea id="descInput" rows="2" placeholder="..."></textarea>
+
+  <button onclick="addDebt()">เพิ่มรายการ</button>
+
+  <table id="debtTable">
+    <thead>
+      <tr>
+        <th>ชื่อเพื่อน</th>
+        <th>จำนวนเงิน</th>
+        <th>รายละเอียด</th>
+        <th>ลบ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    let debts = JSON.parse(localStorage.getItem("debts") || "[]");
+
+    function renderTable() {
+      const tbody = document.querySelector("#debtTable tbody");
+      tbody.innerHTML = "";
+      debts.forEach((d, i) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${d.name}</td>
+          <td>${d.amount} บาท</td>
+          <td>${d.desc}</td>
+          <td><span class="delete-btn" onclick="deleteDebt(${i})">❌</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function addDebt() {
+      const name = document.getElementById("nameInput").value.trim();
+      const amount = document.getElementById("amountInput").value.trim();
+      const desc = document.getElementById("descInput").value.trim();
+
+      if (!name || !amount || !desc) {
+        alert("กรุณากรอกข้อมูลให้ครบ");
+        return;
+      }
+
+      debts.push({ name, amount, desc });
+      localStorage.setItem("debts", JSON.stringify(debts));
+      renderTable();
+
+      document.getElementById("nameInput").value = "";
+      document.getElementById("amountInput").value = "";
+      document.getElementById("descInput").value = "";
+    }
+
+    function deleteDebt(index) {
+      if (confirm("ลบรายการนี้ใช่ไหม?")) {
+        debts.splice(index, 1);
+        localStorage.setItem("debts", JSON.stringify(debts));
+        renderTable();
+      }
+    }
+
+    renderTable();
+  </script>
+
+</body>
+</html>
